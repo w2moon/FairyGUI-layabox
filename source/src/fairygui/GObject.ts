@@ -3,6 +3,7 @@ namespace fgui {
         public data: Object;
         public packageItem: PackageItem;
         public static draggingObject: GObject;
+        
 
         private _x: number = 0;
         private _y: number = 0;
@@ -490,6 +491,29 @@ namespace fgui {
 
         public requestFocus(): void {
             this.root.focus = this;
+        }
+
+        public _gswl: {
+            controllers?:{
+                [controllerName:string]:{
+                    pages?:{[pageName:string]:{animationName?:string,skinName?:string}}
+                }
+            }
+        };
+        public get gswl(){
+            if(!this._gswl){
+                if(this.data){
+                    try{
+                        this._gswl = JSON.parse(this.data as string).gswl;
+                    }
+                    catch(e){
+                        console.log(e);
+                    }
+                    
+                }
+                
+            }
+            return this._gswl;
         }
 
         public get tooltips(): string {

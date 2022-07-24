@@ -294,7 +294,9 @@ declare namespace fgui {
         DeltaTime = 6,
         TimeScale = 7,
         FontSize = 8,
-        Selected = 9
+        Selected = 9,
+        AnimationName = 10,
+        SkinName = 11
     }
 }
 declare namespace fgui {
@@ -394,6 +396,30 @@ declare namespace fgui {
         sortingOrder: number;
         readonly focused: boolean;
         requestFocus(): void;
+        _gswl: {
+            controllers?: {
+                [controllerName: string]: {
+                    pages?: {
+                        [pageName: string]: {
+                            animationName?: string;
+                            skinName?: string;
+                        };
+                    };
+                };
+            };
+        };
+        readonly gswl: {
+            controllers?: {
+                [controllerName: string]: {
+                    pages?: {
+                        [pageName: string]: {
+                            animationName?: string;
+                            skinName?: string;
+                        };
+                    };
+                };
+            };
+        };
         tooltips: string;
         private __rollOver;
         private __doShowTooltips;
@@ -1109,7 +1135,7 @@ declare namespace fgui {
         protected loadContent(): void;
         protected loadFromPackage(itemURL: string): void;
         private onLoaded;
-        setSkeleton(skeleton: Laya.Skeleton, anchor?: Laya.Point): void;
+        setSkeleton(skeleton: Laya.SpineSkeleton, anchor?: Laya.Point): void;
         private onChange;
         protected loadExternal(): void;
         private updateLayout;
@@ -1451,7 +1477,7 @@ declare namespace fgui {
         frames?: Frame[];
         extensionType?: any;
         bitmapFont?: BitmapFont;
-        templet?: Laya.Templet;
+        templet?: Laya.SpineTemplet;
         skeletonAnchor?: Laya.Point;
         constructor();
         load(): Object;
@@ -2071,6 +2097,7 @@ declare namespace fgui {
         private _default;
         constructor(owner: GObject);
         protected init(): void;
+        private getPageConfig;
         protected addStatus(pageId: string, buffer: ByteBuffer): void;
         apply(): void;
         updateState(): void;

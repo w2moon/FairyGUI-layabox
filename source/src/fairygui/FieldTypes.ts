@@ -176,7 +176,7 @@ namespace fgui {
         BottomLeft,
         BottomRight
     }
-
+    
     export enum ObjectPropID {
         Text,
         Icon,
@@ -187,6 +187,8 @@ namespace fgui {
         DeltaTime,
         TimeScale,
         FontSize,
-        Selected
+        Selected,
+        AnimationName,
+        SkinName
     }
 }

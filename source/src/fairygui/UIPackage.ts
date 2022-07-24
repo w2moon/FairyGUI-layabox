@@ -655,7 +655,7 @@ namespace fgui {
                 case PackageItemType.Spine:
                 case PackageItemType.DragonBones:
                     item.loading = [onComplete];
-                    item.templet = new Laya.Templet();
+                    item.templet = new Laya.SpineTemplet("v4_0");;
                     item.templet.on(Laya.Event.COMPLETE, this, () => {
                         let arr = item.loading;
                         delete item.loading;
@@ -667,9 +667,7 @@ namespace fgui {
                         delete item.templet;
                         arr.forEach(e => e('parse error', item));
                     });
-                    let pos = item.file.lastIndexOf('.');
-                    let str = item.file.substring(0, pos + 1).replace("_ske", "") + "sk";
-                    item.templet.loadAni(str);
+                    item.templet.loadAni(item.file);
                     break;
 
                 default:

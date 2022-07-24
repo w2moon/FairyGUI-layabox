@@ -14,7 +14,7 @@ namespace fgui {
         private _color: string;
         private _contentItem: PackageItem;
         private _container: Laya.Sprite;
-        private _content: Laya.Skeleton;
+        private _content: Laya.SpineSkeleton;
         private _updatingLayout: boolean;
 
         public constructor() {
@@ -230,10 +230,10 @@ namespace fgui {
             if (!this._contentItem.templet)
                 return;
 
-            this.setSkeleton(this._contentItem.templet.buildArmature(1), this._contentItem.skeletonAnchor);
+            this.setSkeleton(this._contentItem.templet.buildArmature(), this._contentItem.skeletonAnchor);
         }
 
-        public setSkeleton(skeleton: Laya.Skeleton, anchor?: Laya.Point): void {
+        public setSkeleton(skeleton: Laya.SpineSkeleton, anchor?: Laya.Point): void {
             this.url = null;
 
             this._content = skeleton;
@@ -390,6 +390,12 @@ namespace fgui {
                 case ObjectPropID.TimeScale:
                     break;
                 case ObjectPropID.DeltaTime:
+                    break;
+                case ObjectPropID.AnimationName:
+                    this.animationName = value;
+                    break;
+                case ObjectPropID.SkinName:
+                    this.skinName = value;
                     break;
                 default:
                     super.setProp(index, value);
