@@ -15541,7 +15541,7 @@
             if (!controller || !controller.pages) {
                 return;
             }
-            return controller.pages[this._controller.getPageName(pageId)];
+            return controller.pages[this._controller.getPageNameById(pageId)];
         }
         addStatus(pageId, buffer) {
             var gv;

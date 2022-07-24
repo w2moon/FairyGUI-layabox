@@ -710,6 +710,8 @@
         ObjectPropID[ObjectPropID["TimeScale"] = 7] = "TimeScale";
         ObjectPropID[ObjectPropID["FontSize"] = 8] = "FontSize";
         ObjectPropID[ObjectPropID["Selected"] = 9] = "Selected";
+        ObjectPropID[ObjectPropID["AnimationName"] = 10] = "AnimationName";
+        ObjectPropID[ObjectPropID["SkinName"] = 11] = "SkinName";
     })(ObjectPropID = fgui.ObjectPropID || (fgui.ObjectPropID = {}));
 })(fgui);
 
@@ -1098,6 +1100,19 @@
         }
         requestFocus() {
             this.root.focus = this;
+        }
+        get gswl() {
+            if (!this._gswl) {
+                if (this.data) {
+                    try {
+                        this._gswl = JSON.parse(this.data).gswl;
+                    }
+                    catch (e) {
+                        console.log(e);
+                    }
+                }
+            }
+            return this._gswl;
         }
         get tooltips() {
             return this._tooltips;
@@ -7928,7 +7943,7 @@
                 console.warn(err);
             if (!this._contentItem.templet)
                 return;
-            this.setSkeleton(this._contentItem.templet.buildArmature(1), this._contentItem.skeletonAnchor);
+            this.setSkeleton(this._contentItem.templet.buildArmature(), this._contentItem.skeletonAnchor);
         }
         setSkeleton(skeleton, anchor) {
             this.url = null;
@@ -8064,6 +8079,12 @@
                 case fgui.ObjectPropID.TimeScale:
                     break;
                 case fgui.ObjectPropID.DeltaTime:
+                    break;
+                case fgui.ObjectPropID.AnimationName:
+                    this.animationName = value;
+                    break;
+                case fgui.ObjectPropID.SkinName:
+                    this.skinName = value;
                     break;
                 default:
                     super.setProp(index, value);
@@ -14196,7 +14217,8 @@
                 case fgui.PackageItemType.Spine:
                 case fgui.PackageItemType.DragonBones:
                     item.loading = [onComplete];
-                    item.templet = new Laya.Templet();
+                    item.templet = new Laya.SpineTemplet("v4_0");
+                    ;
                     item.templet.on(Laya.Event.COMPLETE, this, () => {
                         let arr = item.loading;
                         delete item.loading;
@@ -14208,9 +14230,7 @@
                         delete item.templet;
                         arr.forEach(e => e('parse error', item));
                     });
-                    let pos = item.file.lastIndexOf('.');
-                    let str = item.file.substring(0, pos + 1).replace("_ske", "") + "sk";
-                    item.templet.loadAni(str);
+                    item.templet.loadAni(item.file);
                     break;
                 default:
                     this.getItemAsset(item);
@@ -15507,9 +15527,21 @@
         init() {
             this._default = {
                 playing: this._owner.getProp(fgui.ObjectPropID.Playing),
-                frame: this._owner.getProp(fgui.ObjectPropID.Frame)
+                frame: this._owner.getProp(fgui.ObjectPropID.Frame),
+                animationName: '',
             };
             this._storage = {};
+        }
+        getPageConfig(pageId) {
+            const gswl = this._owner.gswl;
+            if (!gswl || !gswl.controllers) {
+                return;
+            }
+            const controller = gswl.controllers[this._controller.name];
+            if (!controller || !controller.pages) {
+                return;
+            }
+            return controller.pages[this._controller.getPageNameById(pageId)];
         }
         addStatus(pageId, buffer) {
             var gv;
@@ -15519,6 +15551,11 @@
                 this._storage[pageId] = gv = {};
             gv.playing = buffer.readBool();
             gv.frame = buffer.getInt32();
+            const page = this.getPageConfig(pageId);
+            if (page) {
+                gv.animationName = page.animationName;
+                gv.skinName = page.skinName;
+            }
         }
         apply() {
             this._owner._gearLocked = true;
@@ -15527,6 +15564,8 @@
                 gv = this._default;
             this._owner.setProp(fgui.ObjectPropID.Playing, gv.playing);
             this._owner.setProp(fgui.ObjectPropID.Frame, gv.frame);
+            this._owner.setProp(fgui.ObjectPropID.AnimationName, gv.animationName);
+            this._owner.setProp(fgui.ObjectPropID.SkinName, gv.skinName);
             this._owner._gearLocked = false;
         }
         updateState() {
@@ -15535,6 +15574,11 @@
                 this._storage[this._controller.selectedPageId] = gv = {};
             gv.playing = this._owner.getProp(fgui.ObjectPropID.Playing);
             gv.frame = this._owner.getProp(fgui.ObjectPropID.Frame);
+            const page = this.getPageConfig(this._controller.selectedPageId);
+            if (page) {
+                gv.animationName = page.animationName;
+                gv.skinName = page.skinName;
+            }
         }
     }
     fgui.GearAnimation = GearAnimation;
