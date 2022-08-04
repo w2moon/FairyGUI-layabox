@@ -9,3 +9,6 @@ This package require layabox@>=2.2.0
 
 ### License
 MIT
+
+#使用方法
+进source目录，运行 npm run build

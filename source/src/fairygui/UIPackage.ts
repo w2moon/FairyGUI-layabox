@@ -655,7 +655,7 @@ namespace fgui {
                 case PackageItemType.Spine:
                 case PackageItemType.DragonBones:
                     item.loading = [onComplete];
-                    item.templet = new Laya.SpineTemplet("v4_0");;
+                    item.templet = new Laya.SpineTemplet("v3_8");;
                     item.templet.on(Laya.Event.COMPLETE, this, () => {
                         let arr = item.loading;
                         delete item.loading;
