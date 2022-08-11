@@ -147,6 +147,8 @@ namespace fgui {
 
         public set animationName(value: string) {
             if (this._animationName != value) {
+                // 默认每次都重置回1
+                this._playbackRate = 1;
                 this._animationName = value;
                 this.onChange();
             }
@@ -186,6 +188,45 @@ namespace fgui {
                 if (this._content)
                     ToolSet.setColorFilter(this._content, this._color);
             }
+        }
+
+        private _playbackRate:number = 1;
+        public get playbackRate(){
+            return this._playbackRate;
+        }
+        public set playbackRate(v:number){
+            if(this._playbackRate === v){
+                return;
+            }
+            this._playbackRate = v;
+            this.onChange();
+        }
+
+        private _animationDuration:{[name:string]:number};
+        public setAnimationDuration(name:string,duration:number){
+            if(!this._animationDuration){
+                this._animationDuration = {};
+            }
+            if(this._animationDuration[name] === duration){
+                return;
+            }
+            if(!duration){
+                delete this._animationDuration[name];
+            }
+            else{
+                this._animationDuration[name] = duration;
+            }
+            
+            this.onChange();
+        }
+
+        private _defaultMix:number = 0;
+        public setDefaultMix(v:number){
+            if(this._defaultMix === v){
+                return;
+            }
+            this._defaultMix = v;
+            this.onChange();
         }
 
         public get content(): Laya.Sprite {
@@ -249,6 +290,23 @@ namespace fgui {
         private onChange(): void {
             if (!this._content)
                 return;
+
+            if(this._playbackRate !== undefined){
+                this._content.playbackRate(this._playbackRate);
+            }
+            if(this._defaultMix !== undefined){
+                // @ts-ignore
+                this._content.stateData.defaultMix = this._defaultMix;
+            }
+            if(this._animationName && this._animationDuration && this._animationDuration[this._animationName]){
+                // 获得动画时间，并计算playbackRate值
+                 // @ts-ignore
+                const anims = this._content.skeleton.data.animations;
+                const anim = anims.find(anim=>anim.name === this._animationName);
+                if(anim && anim.duration){
+                    this._content.playbackRate(anim.duration/this._animationDuration[this._animationName]);
+                }
+            }
 
             if (this._animationName) {
                 if (this._playing)

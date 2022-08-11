@@ -7777,6 +7777,8 @@
         constructor() {
             super();
             this._frame = 0;
+            this._playbackRate = 1;
+            this._defaultMix = 0;
             this._playing = true;
             this._url = "";
             this._fill = fgui.LoaderFillType.None;
@@ -7878,6 +7880,8 @@
         }
         set animationName(value) {
             if (this._animationName != value) {
+                // 默认每次都重置回1
+                this._playbackRate = 1;
                 this._animationName = value;
                 this.onChange();
             }
@@ -7911,6 +7915,35 @@
                     fgui.ToolSet.setColorFilter(this._content, this._color);
             }
         }
+        get playbackRate() {
+            return this._playbackRate;
+        }
+        set playbackRate(v) {
+            if (this._playbackRate === v) {
+                return;
+            }
+            this._playbackRate = v;
+            this.onChange();
+        }
+        setAnimationDuration(name, duration) {
+            if (!this._animationDuration) {
+                this._animationDuration = {};
+            }
+            if (this._animationDuration[name] === duration) {
+                return;
+            }
+            if (!duration) {
+                delete this._animationDuration[name];
+            }
+            this.onChange();
+        }
+        setDefaultMix(v) {
+            if (this._defaultMix === v) {
+                return;
+            }
+            this._defaultMix = v;
+            this.onChange();
+        }
         get content() {
             return this._content;
         }
@@ -7932,15 +7965,17 @@
                 this._contentItem = this._contentItem.getHighResolution();
                 if (this._autoSize)
                     this.setSize(this.sourceWidth, this.sourceHeight);
-                if (this._contentItem.type == fgui.PackageItemType.Spine || this._contentItem.type == fgui.PackageItemType.DragonBones)
+                if (this._contentItem.type == fgui.PackageItemType.Spine || this._contentItem.type == fgui.PackageItemType.DragonBones) {
                     this._contentItem.owner.getItemAssetAsync(this._contentItem, this.onLoaded.bind(this));
+                }
             }
         }
         onLoaded(err, item) {
             if (this._contentItem != item)
                 return;
-            if (err)
+            if (err) {
                 console.warn(err);
+            }
             if (!this._contentItem.templet)
                 return;
             this.setSkeleton(this._contentItem.templet.buildArmature(), this._contentItem.skeletonAnchor);
@@ -7969,6 +8004,22 @@
                 this._content.showSkinByName(this._skinName);
             else
                 this._content.showSkinByIndex(0);
+            if (this._playbackRate !== undefined) {
+                this._content.playbackRate(this._playbackRate);
+            }
+            if (this._defaultMix !== undefined) {
+                // @ts-ignore
+                this._content.stateData.defaultMix = this._defaultMix;
+            }
+            if (this._animationName && this._animationDuration && this._animationDuration[this._animationName]) {
+                // 获得动画时间，并计算playbackRate值
+                // @ts-ignore
+                const anims = this._content.skeleton.data.animations;
+                const anim = anims.find(anim => anim.name === this._animationName);
+                if (anim && anim.duration) {
+                    this._content.playbackRate(anim.duration / this._animationDuration[this._animationName]);
+                }
+            }
         }
         loadExternal() {
         }
@@ -14217,7 +14268,7 @@
                 case fgui.PackageItemType.Spine:
                 case fgui.PackageItemType.DragonBones:
                     item.loading = [onComplete];
-                    item.templet = new Laya.SpineTemplet("v4_0");
+                    item.templet = new Laya.SpineTemplet("v3_8");
                     ;
                     item.templet.on(Laya.Event.COMPLETE, this, () => {
                         let arr = item.loading;

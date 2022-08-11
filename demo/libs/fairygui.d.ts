@@ -1131,6 +1131,12 @@ declare namespace fgui {
         skinName: string;
         loop: boolean;
         color: string;
+        private _playbackRate;
+        playbackRate: number;
+        private _animationDuration;
+        setAnimationDuration(name: string, duration: number): void;
+        private _defaultMix;
+        setDefaultMix(v: number): void;
         readonly content: Laya.Sprite;
         protected loadContent(): void;
         protected loadFromPackage(itemURL: string): void;
