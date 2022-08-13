@@ -396,9 +396,14 @@ namespace fgui {
         public setDuration(label: string, value: number): void {
             var cnt: number = this._items.length;
             var found: boolean = false;
+            var offset: number = 0;
             for (var i: number = 0; i < cnt; i++) {
                 var item: Item = this._items[i];
                 if (item.tweenConfig && item.label == label) {
+                    // 后面item的time要调整duration的差值
+                    item.time += offset;
+                    offset += value - item.tweenConfig.duration
+                    
                     item.tweenConfig.duration = value;
                     found = true;
                 }

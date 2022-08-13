@@ -7935,6 +7935,9 @@
             if (!duration) {
                 delete this._animationDuration[name];
             }
+            else {
+                this._animationDuration[name] = duration;
+            }
             this.onChange();
         }
         setDefaultMix(v) {
@@ -7965,17 +7968,15 @@
                 this._contentItem = this._contentItem.getHighResolution();
                 if (this._autoSize)
                     this.setSize(this.sourceWidth, this.sourceHeight);
-                if (this._contentItem.type == fgui.PackageItemType.Spine || this._contentItem.type == fgui.PackageItemType.DragonBones) {
+                if (this._contentItem.type == fgui.PackageItemType.Spine || this._contentItem.type == fgui.PackageItemType.DragonBones)
                     this._contentItem.owner.getItemAssetAsync(this._contentItem, this.onLoaded.bind(this));
-                }
             }
         }
         onLoaded(err, item) {
             if (this._contentItem != item)
                 return;
-            if (err) {
+            if (err)
                 console.warn(err);
-            }
             if (!this._contentItem.templet)
                 return;
             this.setSkeleton(this._contentItem.templet.buildArmature(), this._contentItem.skeletonAnchor);
@@ -7992,18 +7993,6 @@
         onChange() {
             if (!this._content)
                 return;
-            if (this._animationName) {
-                if (this._playing)
-                    this._content.play(this._animationName, this._loop);
-                else
-                    this._content.play(this._animationName, false, true, this._frame, this._frame);
-            }
-            else
-                this._content.stop();
-            if (this._skinName)
-                this._content.showSkinByName(this._skinName);
-            else
-                this._content.showSkinByIndex(0);
             if (this._playbackRate !== undefined) {
                 this._content.playbackRate(this._playbackRate);
             }
@@ -8020,6 +8009,18 @@
                     this._content.playbackRate(anim.duration / this._animationDuration[this._animationName]);
                 }
             }
+            if (this._animationName) {
+                if (this._playing)
+                    this._content.play(this._animationName, this._loop);
+                else
+                    this._content.play(this._animationName, false, true, this._frame, this._frame);
+            }
+            else
+                this._content.stop();
+            if (this._skinName)
+                this._content.showSkinByName(this._skinName);
+            else
+                this._content.showSkinByIndex(0);
         }
         loadExternal() {
         }
@@ -12665,9 +12666,13 @@
         setDuration(label, value) {
             var cnt = this._items.length;
             var found = false;
+            var offset = 0;
             for (var i = 0; i < cnt; i++) {
                 var item = this._items[i];
                 if (item.tweenConfig && item.label == label) {
+                    // 后面item的time要调整duration的差值
+                    item.time += offset;
+                    offset += value - item.tweenConfig.duration;
                     item.tweenConfig.duration = value;
                     found = true;
                 }
