@@ -202,6 +202,13 @@ namespace fgui {
             this.onChange();
         }
 
+        private _addAnimation:string;
+        
+        public addAnimation(anim:string){
+            this._addAnimation = anim;
+            this.onChange();
+        }
+
         private _animationDuration:{[name:string]:number};
         public setAnimationDuration(name:string,duration:number){
             if(!this._animationDuration){
@@ -275,6 +282,9 @@ namespace fgui {
         }
 
         public setSkeleton(skeleton: Laya.SpineSkeleton, anchor?: Laya.Point): void {
+            if(this.isDisposed){
+                return;
+            }
             this.url = null;
 
             this._content = skeleton;
@@ -313,6 +323,11 @@ namespace fgui {
                     this._content.play(this._animationName, this._loop);
                 else
                     this._content.play(this._animationName, false, true, this._frame, this._frame);
+
+                if(this._addAnimation){
+                    this._content.addAnimation(this._addAnimation,true);
+                    this._addAnimation = null;
+                }
             }
             else
                 this._content.stop();

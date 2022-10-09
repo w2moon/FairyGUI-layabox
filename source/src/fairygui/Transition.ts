@@ -63,6 +63,35 @@ namespace fgui {
             }
         }
 
+        public getLabelItem(label:string){
+            var cnt: number = this._items.length;
+            for (var i: number = 0; i < cnt; i++) {
+                if(this._items[i].label === label){
+                    return this._items[i];
+                }
+            }
+        }
+
+        public setPathXY(startLabel:string, startX:number,startY:number,finishLabel:string,finishX:number,finishY:number){
+            const startItem = this.getLabelItem(startLabel);
+
+            const oldDuration = this.getLabelTime(finishLabel) - this.getLabelTime(startLabel);
+
+            const path = startItem.tweenConfig.path;
+            const speed = path.length/oldDuration;
+
+            const dy = finishY - startY;
+            const dx = finishX - startX;
+
+            const points:any = path.getPoints();
+            this.setValue(startLabel,0,0);
+            this.setValue(finishLabel,dx,dy)
+            path.create(fgui.GPathPoint.newCubicBezierPoint(0,0,points[2].x,points[2].y,dx+points[3].x-points[1].x,dy+points[3].y-points[1].y),fgui.GPathPoint.newCubicBezierPoint(dx,dy))
+    
+            
+            this.setDuration(startLabel,Math.sqrt(dy*dy+dx*dx)/speed);
+        }
+
         private _play(onComplete: Laya.Handler, times: number, delay: number, startTime: number, endTime: number, reversed: boolean): void {
             if (times == undefined) times = 1;
             if (delay == undefined) delay = 0;
@@ -399,18 +428,25 @@ namespace fgui {
             var offset: number = 0;
             for (var i: number = 0; i < cnt; i++) {
                 var item: Item = this._items[i];
+                if(found){
+                    item.time += offset;
+                }
                 if (item.tweenConfig && item.label == label) {
                     // 后面item的time要调整duration的差值
-                    item.time += offset;
                     offset += value - item.tweenConfig.duration
-                    
+
                     item.tweenConfig.duration = value;
                     found = true;
                 }
             }
 
-            if (!found)
+            if (!found){
                 throw new Error("this.label not exists");
+            }
+            else{
+                this._totalDuration += offset;
+            }
+                
         }
 
         public getLabelTime(label: string): number {

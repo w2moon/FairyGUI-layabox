@@ -1143,6 +1143,9 @@ namespace fgui {
                 child = this._children[i];
                 child.setup_afterAdd(buffer, buffer.pos);
                 child._underConstruct = false;
+                if(child.onFinishInit){
+                    child.onFinishInit();
+                }
 
                 buffer.pos = nextPos;
             }

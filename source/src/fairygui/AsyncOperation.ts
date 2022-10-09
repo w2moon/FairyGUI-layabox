@@ -171,6 +171,9 @@ namespace fgui {
                     else {
                         obj.constructFromResource();
                     }
+                    if(obj.onFinishInit){
+                        obj.onFinishInit();
+                    }
                     UIPackage._constructing--;
                 }
                 else {

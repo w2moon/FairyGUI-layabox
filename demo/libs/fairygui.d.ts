@@ -489,6 +489,7 @@ declare namespace fgui {
         handleVisibleChanged(): void;
         getProp(index: number): any;
         setProp(index: number, value: any): void;
+        onFinishInit: () => void;
         constructFromResource(): void;
         setup_beforeAdd(buffer: ByteBuffer, beginPos: number): void;
         setup_afterAdd(buffer: ByteBuffer, beginPos: number): void;
@@ -1133,6 +1134,8 @@ declare namespace fgui {
         color: string;
         private _playbackRate;
         playbackRate: number;
+        private _addAnimation;
+        addAnimation(anim: string): void;
         private _animationDuration;
         setAnimationDuration(name: string, duration: number): void;
         private _defaultMix;
@@ -1734,6 +1737,8 @@ declare namespace fgui {
         playReverse(onComplete?: Laya.Handler, times?: number, delay?: number, startTime?: number, endTime?: number): void;
         changePlayTimes(value: number): void;
         setAutoPlay(value: boolean, times?: number, delay?: number): void;
+        getLabelItem(label: string): Item;
+        setPathXY(startLabel: string, startX: number, startY: number, finishLabel: string, finishX: number, finishY: number): void;
         private _play;
         stop(setToComplete?: boolean, processCallback?: boolean): void;
         private stopItem;
@@ -1764,6 +1769,58 @@ declare namespace fgui {
         private applyValue;
         setup(buffer: ByteBuffer): void;
         private decodeValue;
+    }
+    class Item {
+        time: number;
+        targetId: string;
+        type: number;
+        tweenConfig?: TweenConfig;
+        label?: string;
+        value: TValue;
+        hook?: Laya.Handler;
+        tweener?: GTweener;
+        target: GObject;
+        displayLockToken: number;
+        constructor(type: number);
+    }
+    class TweenConfig {
+        duration: number;
+        easeType: number;
+        repeat: number;
+        yoyo?: boolean;
+        startValue: TValue;
+        endValue: TValue;
+        endLabel: string;
+        endHook?: Laya.Handler;
+        path?: GPath;
+        constructor();
+    }
+    interface TValue {
+        visible?: boolean;
+        frame?: number;
+        playing?: boolean;
+        flag?: boolean;
+        sound?: string;
+        volume?: number;
+        audioClip?: string;
+        transName?: string;
+        playTimes?: number;
+        trans?: Transition;
+        stopTime?: number;
+        amplitude?: number;
+        duration?: number;
+        offsetX?: number;
+        offsetY?: number;
+        lastOffsetX?: number;
+        lastOffsetY?: number;
+        text?: string;
+        f1?: number;
+        f2?: number;
+        f3?: number;
+        f4?: number;
+        b1?: boolean;
+        b2?: boolean;
+        b3?: boolean;
     }
 }
 declare namespace fgui {
@@ -2270,6 +2327,7 @@ declare namespace fgui {
         private createSplineSegment;
         clear(): void;
         getPointAt(t: number, result?: Laya.Point): Laya.Point;
+        getPoints(): Laya.Point[];
         readonly segmentCount: number;
         getAnchorsInSegment(segmentIndex: number, points?: Array<Laya.Point>): Array<Laya.Point>;
         getPointsInSegment(segmentIndex: number, t0: number, t1: number, points?: Array<Laya.Point>, ts?: Array<number>, pointDensity?: number): Array<Laya.Point>;

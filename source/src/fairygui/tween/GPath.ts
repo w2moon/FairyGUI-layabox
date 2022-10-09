@@ -170,6 +170,10 @@ namespace fgui {
             return result;
         }
 
+        public getPoints(){
+            return this._points;
+        }
+
         public get segmentCount(): number {
             return this._segments.length;
         }

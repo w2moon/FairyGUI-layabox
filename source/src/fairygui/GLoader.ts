@@ -279,6 +279,17 @@ namespace fgui {
         }
 
         protected onExternalLoadSuccess(texture: Laya.Texture): void {
+            if(!this._url){
+                this.freeExternal(texture);
+                
+                if (this._content2) {
+                    this._content2.dispose();
+                    this._content2 = null;
+                }
+    
+                this._contentItem = null;
+                return;
+            }
             this._content.texture = texture;
             this._content.scale9Grid = null;
             this._content.scaleByTile = false;

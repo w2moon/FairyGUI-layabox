@@ -556,6 +556,9 @@ namespace fgui {
 
             UIPackage._constructing++;
             g.constructFromResource();
+            if(g.onFinishInit){
+                g.onFinishInit();
+            }
             UIPackage._constructing--;
             return g;
         }

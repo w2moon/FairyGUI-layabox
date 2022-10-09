@@ -159,6 +159,9 @@
                     else {
                         obj.constructFromResource();
                     }
+                    if (obj.onFinishInit) {
+                        obj.onFinishInit();
+                    }
                     fgui.UIPackage._constructing--;
                 }
                 else {
@@ -3429,6 +3432,9 @@
                 child = this._children[i];
                 child.setup_afterAdd(buffer, buffer.pos);
                 child._underConstruct = false;
+                if (child.onFinishInit) {
+                    child.onFinishInit();
+                }
                 buffer.pos = nextPos;
             }
             buffer.seek(0, 4);
@@ -7925,6 +7931,10 @@
             this._playbackRate = v;
             this.onChange();
         }
+        addAnimation(anim) {
+            this._addAnimation = anim;
+            this.onChange();
+        }
         setAnimationDuration(name, duration) {
             if (!this._animationDuration) {
                 this._animationDuration = {};
@@ -7934,6 +7944,9 @@
             }
             if (!duration) {
                 delete this._animationDuration[name];
+            }
+            else {
+                this._animationDuration[name] = duration;
             }
             this.onChange();
         }
@@ -7965,17 +7978,15 @@
                 this._contentItem = this._contentItem.getHighResolution();
                 if (this._autoSize)
                     this.setSize(this.sourceWidth, this.sourceHeight);
-                if (this._contentItem.type == fgui.PackageItemType.Spine || this._contentItem.type == fgui.PackageItemType.DragonBones) {
+                if (this._contentItem.type == fgui.PackageItemType.Spine || this._contentItem.type == fgui.PackageItemType.DragonBones)
                     this._contentItem.owner.getItemAssetAsync(this._contentItem, this.onLoaded.bind(this));
-                }
             }
         }
         onLoaded(err, item) {
             if (this._contentItem != item)
                 return;
-            if (err) {
+            if (err)
                 console.warn(err);
-            }
             if (!this._contentItem.templet)
                 return;
             this.setSkeleton(this._contentItem.templet.buildArmature(), this._contentItem.skeletonAnchor);
@@ -7992,18 +8003,6 @@
         onChange() {
             if (!this._content)
                 return;
-            if (this._animationName) {
-                if (this._playing)
-                    this._content.play(this._animationName, this._loop);
-                else
-                    this._content.play(this._animationName, false, true, this._frame, this._frame);
-            }
-            else
-                this._content.stop();
-            if (this._skinName)
-                this._content.showSkinByName(this._skinName);
-            else
-                this._content.showSkinByIndex(0);
             if (this._playbackRate !== undefined) {
                 this._content.playbackRate(this._playbackRate);
             }
@@ -8020,6 +8019,22 @@
                     this._content.playbackRate(anim.duration / this._animationDuration[this._animationName]);
                 }
             }
+            if (this._animationName) {
+                if (this._playing)
+                    this._content.play(this._animationName, this._loop);
+                else
+                    this._content.play(this._animationName, false, true, this._frame, this._frame);
+                if (this._addAnimation) {
+                    this._content.addAnimation(this._addAnimation, true);
+                    this._addAnimation = null;
+                }
+            }
+            else
+                this._content.stop();
+            if (this._skinName)
+                this._content.showSkinByName(this._skinName);
+            else
+                this._content.showSkinByIndex(0);
         }
         loadExternal() {
         }
@@ -12372,6 +12387,27 @@
                 }
             }
         }
+        getLabelItem(label) {
+            var cnt = this._items.length;
+            for (var i = 0; i < cnt; i++) {
+                if (this._items[i].label === label) {
+                    return this._items[i];
+                }
+            }
+        }
+        setPathXY(startLabel, startX, startY, finishLabel, finishX, finishY) {
+            const startItem = this.getLabelItem(startLabel);
+            const oldDuration = this.getLabelTime(finishLabel) - this.getLabelTime(startLabel);
+            const path = startItem.tweenConfig.path;
+            const speed = path.length / oldDuration;
+            const dy = finishY - startY;
+            const dx = finishX - startX;
+            const points = path.getPoints();
+            this.setValue(startLabel, 0, 0);
+            this.setValue(finishLabel, dx, dy);
+            path.create(fgui.GPathPoint.newCubicBezierPoint(0, 0, points[2].x, points[2].y, dx + points[3].x - points[1].x, dy + points[3].y - points[1].y), fgui.GPathPoint.newCubicBezierPoint(dx, dy));
+            this.setDuration(startLabel, Math.sqrt(dy * dy + dx * dx) / speed);
+        }
         _play(onComplete, times, delay, startTime, endTime, reversed) {
             if (times == undefined)
                 times = 1;
@@ -12665,15 +12701,25 @@
         setDuration(label, value) {
             var cnt = this._items.length;
             var found = false;
+            var offset = 0;
             for (var i = 0; i < cnt; i++) {
                 var item = this._items[i];
+                if (found) {
+                    item.time += offset;
+                }
                 if (item.tweenConfig && item.label == label) {
+                    // 后面item的time要调整duration的差值
+                    offset += value - item.tweenConfig.duration;
                     item.tweenConfig.duration = value;
                     found = true;
                 }
             }
-            if (!found)
+            if (!found) {
                 throw new Error("this.label not exists");
+            }
+            else {
+                this._totalDuration += offset;
+            }
         }
         getLabelTime(label) {
             var cnt = this._items.length;
@@ -14186,6 +14232,9 @@
                 return null;
             UIPackage._constructing++;
             g.constructFromResource();
+            if (g.onFinishInit) {
+                g.onFinishInit();
+            }
             UIPackage._constructing--;
             return g;
         }
@@ -16546,6 +16595,9 @@
                 }
             }
             return result;
+        }
+        getPoints() {
+            return this._points;
         }
         get segmentCount() {
             return this._segments.length;

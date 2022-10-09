@@ -498,6 +498,9 @@ namespace fgui {
                 [controllerName:string]:{
                     pages?:{[pageName:string]:{animationName?:string,skinName?:string}}
                 }
+            },
+            res?:{
+                [resName:string]:string
             }
         };
         public get gswl(){
@@ -1001,6 +1004,8 @@ namespace fgui {
                     break;
             }
         }
+
+        protected onFinishInit?():void;
 
         public constructFromResource(): void {
 
