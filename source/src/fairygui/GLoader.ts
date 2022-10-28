@@ -279,7 +279,7 @@ namespace fgui {
         }
 
         protected onExternalLoadSuccess(texture: Laya.Texture): void {
-            if(!this._url){
+            if(!this._url || this.isDisposed){
                 this.freeExternal(texture);
                 
                 if (this._content2) {

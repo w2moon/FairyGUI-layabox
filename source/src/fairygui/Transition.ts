@@ -92,6 +92,26 @@ namespace fgui {
             this.setDuration(startLabel,Math.sqrt(dy*dy+dx*dx)/speed);
         }
 
+        public setPathXY2(startLabel:string, startX:number,startY:number,finishLabel:string,finishX:number,finishY:number){
+            const startItem = this.getLabelItem(startLabel);
+
+            const oldDuration = this.getLabelTime(finishLabel) - this.getLabelTime(startLabel);
+
+            const path = startItem.tweenConfig.path;
+            const speed = path.length/oldDuration;
+
+            const dy = finishY - startY;
+            const dx = finishX - startX;
+
+            const points:any = path.getPoints();
+            this.setValue(startLabel,startX,startY);
+            this.setValue(finishLabel,finishX,finishY)
+            path.create(fgui.GPathPoint.newCubicBezierPoint(0,0,points[2].x,points[2].y,dx+points[3].x-points[1].x,dy+points[3].y-points[1].y),fgui.GPathPoint.newCubicBezierPoint(dx,dy))
+    
+            
+            this.setDuration(startLabel,Math.sqrt(dy*dy+dx*dx)/speed);
+        }
+
         private _play(onComplete: Laya.Handler, times: number, delay: number, startTime: number, endTime: number, reversed: boolean): void {
             if (times == undefined) times = 1;
             if (delay == undefined) delay = 0;
