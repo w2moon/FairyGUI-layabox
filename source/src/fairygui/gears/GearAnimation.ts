@@ -5,7 +5,7 @@ namespace fgui {
         playing?: boolean;
         frame?: number;
         animationName?:string;
-        skinName?:string;
+        // skinName?:string;
     }
 
     export class GearAnimation extends GearBase {
@@ -50,7 +50,7 @@ namespace fgui {
             const page = this.getPageConfig(pageId);
             if(page){
                 gv.animationName = page.animationName;
-                gv.skinName = page.skinName;
+                // gv.skinName = page.skinName;
             }
         }
 
@@ -64,7 +64,7 @@ namespace fgui {
             this._owner.setProp(ObjectPropID.Playing, gv.playing);
             this._owner.setProp(ObjectPropID.Frame, gv.frame);
             this._owner.setProp(ObjectPropID.AnimationName, gv.animationName);
-            this._owner.setProp(ObjectPropID.SkinName, gv.skinName);
+            // this._owner.setProp(ObjectPropID.SkinName, gv.skinName);
 
             this._owner._gearLocked = false;
         }
@@ -80,7 +80,7 @@ namespace fgui {
             const page = this.getPageConfig(this._controller.selectedPageId);
             if(page){
                 gv.animationName = page.animationName;
-                gv.skinName = page.skinName;
+                // gv.skinName = page.skinName;
             }
             
           

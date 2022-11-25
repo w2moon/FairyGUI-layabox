@@ -1005,7 +1005,7 @@ namespace fgui {
             }
         }
 
-        protected onFinishInit?():void;
+        public onFinishInit?():void;
 
         public constructFromResource(): void {
 

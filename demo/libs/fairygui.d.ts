@@ -407,6 +407,9 @@ declare namespace fgui {
                     };
                 };
             };
+            res?: {
+                [resName: string]: string;
+            };
         };
         readonly gswl: {
             controllers?: {
@@ -418,6 +421,9 @@ declare namespace fgui {
                         };
                     };
                 };
+            };
+            res?: {
+                [resName: string]: string;
             };
         };
         tooltips: string;
@@ -489,7 +495,7 @@ declare namespace fgui {
         handleVisibleChanged(): void;
         getProp(index: number): any;
         setProp(index: number, value: any): void;
-        onFinishInit: () => void;
+        onFinishInit?(): void;
         constructFromResource(): void;
         setup_beforeAdd(buffer: ByteBuffer, beginPos: number): void;
         setup_afterAdd(buffer: ByteBuffer, beginPos: number): void;
@@ -1739,6 +1745,7 @@ declare namespace fgui {
         setAutoPlay(value: boolean, times?: number, delay?: number): void;
         getLabelItem(label: string): Item;
         setPathXY(startLabel: string, startX: number, startY: number, finishLabel: string, finishX: number, finishY: number): void;
+        setPathXY2(startLabel: string, startX: number, startY: number, finishLabel: string, finishX: number, finishY: number): void;
         private _play;
         stop(setToComplete?: boolean, processCallback?: boolean): void;
         private stopItem;

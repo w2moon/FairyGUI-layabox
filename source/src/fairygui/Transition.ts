@@ -461,7 +461,7 @@ namespace fgui {
             }
 
             if (!found){
-                throw new Error("this.label not exists");
+                throw new Error(label+" this.label not exists");
             }
             else{
                 this._totalDuration += offset;

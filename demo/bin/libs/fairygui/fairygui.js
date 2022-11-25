@@ -7573,6 +7573,15 @@
         freeExternal(texture) {
         }
         onExternalLoadSuccess(texture) {
+            if (!this._url || this.isDisposed) {
+                this.freeExternal(texture);
+                if (this._content2) {
+                    this._content2.dispose();
+                    this._content2 = null;
+                }
+                this._contentItem = null;
+                return;
+            }
             this._content.texture = texture;
             this._content.scale9Grid = null;
             this._content.scaleByTile = false;
@@ -7992,6 +8001,9 @@
             this.setSkeleton(this._contentItem.templet.buildArmature(), this._contentItem.skeletonAnchor);
         }
         setSkeleton(skeleton, anchor) {
+            if (this.isDisposed) {
+                return;
+            }
             this.url = null;
             this._content = skeleton;
             this._container.addChild(this._content);
@@ -12408,6 +12420,19 @@
             path.create(fgui.GPathPoint.newCubicBezierPoint(0, 0, points[2].x, points[2].y, dx + points[3].x - points[1].x, dy + points[3].y - points[1].y), fgui.GPathPoint.newCubicBezierPoint(dx, dy));
             this.setDuration(startLabel, Math.sqrt(dy * dy + dx * dx) / speed);
         }
+        setPathXY2(startLabel, startX, startY, finishLabel, finishX, finishY) {
+            const startItem = this.getLabelItem(startLabel);
+            const oldDuration = this.getLabelTime(finishLabel) - this.getLabelTime(startLabel);
+            const path = startItem.tweenConfig.path;
+            const speed = path.length / oldDuration;
+            const dy = finishY - startY;
+            const dx = finishX - startX;
+            const points = path.getPoints();
+            this.setValue(startLabel, startX, startY);
+            this.setValue(finishLabel, finishX, finishY);
+            path.create(fgui.GPathPoint.newCubicBezierPoint(0, 0, points[2].x, points[2].y, dx + points[3].x - points[1].x, dy + points[3].y - points[1].y), fgui.GPathPoint.newCubicBezierPoint(dx, dy));
+            this.setDuration(startLabel, Math.sqrt(dy * dy + dx * dx) / speed);
+        }
         _play(onComplete, times, delay, startTime, endTime, reversed) {
             if (times == undefined)
                 times = 1;
@@ -12715,7 +12740,7 @@
                 }
             }
             if (!found) {
-                throw new Error("this.label not exists");
+                throw new Error(label + " this.label not exists");
             }
             else {
                 this._totalDuration += offset;
@@ -15654,7 +15679,7 @@
             const page = this.getPageConfig(pageId);
             if (page) {
                 gv.animationName = page.animationName;
-                gv.skinName = page.skinName;
+                // gv.skinName = page.skinName;
             }
         }
         apply() {
@@ -15665,7 +15690,7 @@
             this._owner.setProp(fgui.ObjectPropID.Playing, gv.playing);
             this._owner.setProp(fgui.ObjectPropID.Frame, gv.frame);
             this._owner.setProp(fgui.ObjectPropID.AnimationName, gv.animationName);
-            this._owner.setProp(fgui.ObjectPropID.SkinName, gv.skinName);
+            // this._owner.setProp(ObjectPropID.SkinName, gv.skinName);
             this._owner._gearLocked = false;
         }
         updateState() {
@@ -15677,7 +15702,7 @@
             const page = this.getPageConfig(this._controller.selectedPageId);
             if (page) {
                 gv.animationName = page.animationName;
-                gv.skinName = page.skinName;
+                // gv.skinName = page.skinName;
             }
         }
     }

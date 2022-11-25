@@ -295,6 +295,7 @@ namespace fgui {
             this.onChange();
 
             this.updateLayout();
+
         }
 
         private onChange(): void {
