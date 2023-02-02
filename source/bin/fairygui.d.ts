@@ -442,7 +442,7 @@ declare namespace fgui {
         updateGearFromRelations(index: number, dx: number, dy: number): void;
         addDisplayLock(): number;
         releaseDisplayLock(token: number): void;
-        private checkGearDisplay;
+        protected checkGearDisplay(): void;
         readonly relations: Relations;
         addRelation(target: GObject, relationType: number, usePercent?: boolean): void;
         removeRelation(target: GObject, relationType?: number): void;
@@ -1067,9 +1067,12 @@ declare namespace fgui {
         private _content2?;
         private _updatingLayout;
         private static _errorSignPool;
+        private _waitVisible;
+        private _waitResolve;
         constructor();
         protected createDisplayObject(): void;
         dispose(): void;
+        checkGearDisplay(): void;
         url: string;
         icon: string;
         align: string;

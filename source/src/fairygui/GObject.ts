@@ -641,7 +641,7 @@ namespace fgui {
             }
         }
 
-        private checkGearDisplay(): void {
+        protected checkGearDisplay(): void {
             if (this._handlingController)
                 return;
 

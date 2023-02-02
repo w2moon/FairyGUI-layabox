@@ -7358,6 +7358,7 @@
 
 ///<reference path="GObjectPool.ts"/>
 (function (fgui) {
+    // @ts-ignore
     class GLoader extends fgui.GObject {
         constructor() {
             super();
@@ -7366,6 +7367,9 @@
             this._align = "left";
             this._valign = "top";
             this._showErrorSign = true;
+            this._waitVisible = new Promise(resolve => {
+                this._waitResolve = resolve;
+            });
         }
         createDisplayObject() {
             super.createDisplayObject();
@@ -7381,6 +7385,16 @@
                 this._content2.dispose();
             super.dispose();
         }
+        // @ts-ignore
+        checkGearDisplay() {
+            // @ts-ignore
+            super.checkGearDisplay();
+            // @ts-ignore
+            if (this.visible && this._internalVisible) {
+                // @ts-ignore
+                this._waitResolve();
+            }
+        }
         get url() {
             return this._url;
         }
@@ -7388,6 +7402,11 @@
             if (this._url == value)
                 return;
             this._url = value;
+            // @ts-ignore
+            if (this.visible && this._internalVisible) {
+                // @ts-ignore
+                this._waitResolve();
+            }
             this.loadContent();
             this.updateGear(7);
         }
@@ -7568,9 +7587,22 @@
                 this.setErrorState();
         }
         loadExternal() {
-            fgui.AssetProxy.inst.load(this._url, Laya.Handler.create(this, this.__getResCompleted), null, Laya.Loader.IMAGE);
+            // AssetProxy.inst.load(this._url, Laya.Handler.create(this, this.__getResCompleted), null, Laya.Loader.IMAGE);
+            const waitUrl = this._url;
+            this._waitVisible.then(() => {
+                if (this._url !== waitUrl) {
+                    return;
+                }
+                fgui.AssetProxy.inst.load(this._url, Laya.Handler.create(this, this.__getResCompleted), null, Laya.Loader.IMAGE);
+            });
         }
         freeExternal(texture) {
+            if (texture) {
+                // @ts-ignore
+                if (texture._referenceCount === 1) {
+                    texture.destroy();
+                }
+            }
         }
         onExternalLoadSuccess(texture) {
             if (!this._url || this.isDisposed) {

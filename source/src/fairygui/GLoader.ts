@@ -1,6 +1,7 @@
 ///<reference path="GObjectPool.ts"/>
 
 namespace fgui {
+    // @ts-ignore
     export class GLoader extends GObject {
         private _url: string;
         private _align: string;
@@ -19,7 +20,7 @@ namespace fgui {
         private static _errorSignPool: GObjectPool = new GObjectPool();
 
         private _waitVisible:Promise<any>;
-        private _waitResolve:(value:unknown)=>void;
+        private _waitResolve:(value:any)=>void;
         constructor() {
             super();
             this._url = "";
@@ -50,6 +51,7 @@ namespace fgui {
 
             super.dispose();
         }
+        // @ts-ignore
         checkGearDisplay(){
             // @ts-ignore
             super.checkGearDisplay();
@@ -69,8 +71,9 @@ namespace fgui {
                 return;
 
             this._url = value;
-            this._loadedc = false;
+            // @ts-ignore
             if(this.visible && this._internalVisible){
+                // @ts-ignore
                 this._waitResolve();
             }
             this.loadContent();
