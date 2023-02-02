@@ -18,6 +18,8 @@ namespace fgui {
 
         private static _errorSignPool: GObjectPool = new GObjectPool();
 
+        private _waitVisible:Promise<any>;
+        private _waitResolve:(value:unknown)=>void;
         constructor() {
             super();
             this._url = "";
@@ -25,6 +27,9 @@ namespace fgui {
             this._align = "left";
             this._valign = "top";
             this._showErrorSign = true;
+            this._waitVisible = new Promise(resolve=>{
+                this._waitResolve = resolve;
+            });
         }
 
         protected createDisplayObject(): void {
@@ -45,6 +50,15 @@ namespace fgui {
 
             super.dispose();
         }
+        checkGearDisplay(){
+            // @ts-ignore
+            super.checkGearDisplay();
+            // @ts-ignore
+            if(this.visible && this._internalVisible ){
+                // @ts-ignore
+                     this._waitResolve();
+            }
+        }
 
         public get url(): string {
             return this._url;
@@ -55,6 +69,10 @@ namespace fgui {
                 return;
 
             this._url = value;
+            this._loadedc = false;
+            if(this.visible && this._internalVisible){
+                this._waitResolve();
+            }
             this.loadContent();
             this.updateGear(7);
         }
@@ -272,10 +290,23 @@ namespace fgui {
         }
 
         protected loadExternal(): void {
-            AssetProxy.inst.load(this._url, Laya.Handler.create(this, this.__getResCompleted), null, Laya.Loader.IMAGE);
+            // AssetProxy.inst.load(this._url, Laya.Handler.create(this, this.__getResCompleted), null, Laya.Loader.IMAGE);
+            const waitUrl = this._url;
+            this._waitVisible.then(()=>{
+                if(this._url !== waitUrl){
+                    return;
+                }
+                fgui.AssetProxy.inst.load(this._url, Laya.Handler.create(this, this.__getResCompleted), null, Laya.Loader.IMAGE);
+            })
         }
 
         protected freeExternal(texture: Laya.Texture): void {
+            if(texture){
+                // @ts-ignore
+                if(texture._referenceCount === 1){
+                    texture.destroy();
+                }
+            }
         }
 
         protected onExternalLoadSuccess(texture: Laya.Texture): void {
